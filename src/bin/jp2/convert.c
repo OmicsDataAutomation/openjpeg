@@ -1416,9 +1416,6 @@ int imagetopgx(opj_image_t * image, const char *outfile)
             unsigned char* line_buffer = malloc((size_t)w);
             if (line_buffer == NULL) {
                 fprintf(stderr, "Out of memory");
-                if (total > 256) {
-                    free(name);
-                }
                 goto fin;
             }
             for (j = 0; j < h; j++) {
@@ -1812,13 +1809,6 @@ opj_image_t* pnmtoimage(const char *filename, opj_cparameters_t *parameters)
         return NULL;
     }
 
-    if (header_info.width == 0
-            || header_info.height == 0
-            || (header_info.format == 7 && header_info.depth == 0)) {
-        fclose(fp);
-        return NULL;
-    }
-
     /* This limitation could be removed by making sure to use size_t below */
     if (header_info.height != 0 &&
             header_info.width > INT_MAX / header_info.height) {
@@ -1904,10 +1894,8 @@ opj_image_t* pnmtoimage(const char *filename, opj_cparameters_t *parameters)
             for (compno = 0; compno < numcomps; compno++) {
                 index = 0;
                 if (fscanf(fp, "%u", &index) != 1) {
-                    fprintf(stderr, "Missing data. Quitting.\n");
-                    opj_image_destroy(image);
-                    fclose(fp);
-                    return NULL;
+                    fprintf(stderr,
+                            "\nWARNING: fscanf return a number of element different from the expected.\n");
                 }
 
                 image->comps[compno].data[i] = (OPJ_INT32)(index * 255) / header_info.maxval;
@@ -1925,7 +1913,8 @@ opj_image_t* pnmtoimage(const char *filename, opj_cparameters_t *parameters)
         for (i = 0; i < w * h; i++) {
             for (compno = 0; compno < numcomps; compno++) {
                 if (!fread(&c0, 1, 1, fp)) {
-                    fprintf(stderr, "Missing data. Quitting.\n");
+                    fprintf(stderr,
+                            "\nError: fread return a number of element different from the expected.\n");
                     opj_image_destroy(image);
                     fclose(fp);
                     return NULL;
@@ -1934,10 +1923,8 @@ opj_image_t* pnmtoimage(const char *filename, opj_cparameters_t *parameters)
                     image->comps[compno].data[i] = c0;
                 } else {
                     if (!fread(&c1, 1, 1, fp)) {
-                        fprintf(stderr, "Missing data. Quitting.\n");
-                        opj_image_destroy(image);
-                        fclose(fp);
-                        return NULL;
+                        fprintf(stderr,
+                                "\nError: fread return a number of element different from the expected.\n");
                     }
                     /* netpbm: */
                     image->comps[compno].data[i] = ((c0 << 8) | c1);
@@ -1949,17 +1936,15 @@ opj_image_t* pnmtoimage(const char *filename, opj_cparameters_t *parameters)
             unsigned int index;
 
             if (fscanf(fp, "%u", &index) != 1) {
-                fprintf(stderr, "Missing data. Quitting.\n");
-                opj_image_destroy(image);
-                fclose(fp);
-                return NULL;
+                fprintf(stderr,
+                        "\nWARNING: fscanf return a number of element different from the expected.\n");
             }
 
             image->comps[0].data[i] = (index ? 0 : 255);
         }
     } else if (format == 4) {
         int x, y, bit;
-        int uc;
+        unsigned char uc;
 
         i = 0;
         for (y = 0; y < h; ++y) {
@@ -1969,15 +1954,9 @@ opj_image_t* pnmtoimage(const char *filename, opj_cparameters_t *parameters)
             for (x = 0; x < w; ++x) {
                 if (bit == -1) {
                     bit = 7;
-                    uc = getc(fp);
-                    if (uc == EOF) {
-                        fprintf(stderr, "Missing data. Quitting.\n");
-                        opj_image_destroy(image);
-                        fclose(fp);
-                        return NULL;
-                    }
+                    uc = (unsigned char)getc(fp);
                 }
-                image->comps[0].data[i] = ((((unsigned char)uc >> bit) & 1) ? 0 : 255);
+                image->comps[0].data[i] = (((uc >> bit) & 1) ? 0 : 255);
                 --bit;
                 ++i;
             }
@@ -1987,10 +1966,8 @@ opj_image_t* pnmtoimage(const char *filename, opj_cparameters_t *parameters)
 
         for (i = 0; i < w * h; ++i) {
             if (!fread(&uc, 1, 1, fp)) {
-                fprintf(stderr, "Missing data. Quitting.\n");
-                opj_image_destroy(image);
-                fclose(fp);
-                return NULL;
+                fprintf(stderr,
+                        "\nError: fread return a number of element different from the expected.\n");
             }
             image->comps[0].data[i] = (uc & 1) ? 0 : 255;
         }
@@ -2233,11 +2210,6 @@ int imagetopnm(opj_image_t * image, const char *outfile, int force_split)
                 opj_version(), wr, hr, max);
 
         red = image->comps[compno].data;
-        if (!red) {
-            fclose(fdest);
-            continue;
-        }
-
         adjustR =
             (image->comps[compno].sgnd ? 1 << (image->comps[compno].prec - 1) : 0);
 
