@@ -52,14 +52,14 @@ set(COMMENTCODEVAR FALSE)
 #    #r = 0
 
 #    add_test(ETS-C0P0-${filenameInput}-r0-decode
-#        ${EXECUTABLE_OUTPUT_PATH}/opj_decompress
+#        ${OPJ_EXECUTABLE_OUTPUT_PATH}/opj_decompress
 #        -i ${INPUT_CONF}/${filenameInput}
 #        -o ${TEMP}/c0${filenameInput}-r0.pgx
 #        -r 0
 #        )
 
 #    add_test(ETS-C0P0-${filenameInput}-r0-compare2ref
-#        ${EXECUTABLE_OUTPUT_PATH}/compare_images
+#        ${OPJ_EXECUTABLE_OUTPUT_PATH}/compare_images
 #        -b ${BASELINE_CONF}/${filenameRefSub}r0.pgx
 #        -t ${TEMP}/c0${filenameInput}-r0.pgx
 #        -n ${nbComponents}
@@ -73,7 +73,7 @@ set(COMMENTCODEVAR FALSE)
 #                         ETS-C0P0-${filenameInput}-r0-decode)
 
 #    add_test(NR-C0P0-${filenameInput}-r0-compare2base
-#        ${EXECUTABLE_OUTPUT_PATH}/compare_images
+#        ${OPJ_EXECUTABLE_OUTPUT_PATH}/compare_images
 #        -b ${BASELINE_NR}/opj_${filenameRefSub}-r0.pgx
 #        -t ${TEMP}/c0${filenameInput}-r0.pgx
 #        -n ${nbComponents}
@@ -87,14 +87,14 @@ set(COMMENTCODEVAR FALSE)
 
 #    #r = 1
 #    add_test(ETS-C0P0-${filenameInput}-r1-decode
-#        ${EXECUTABLE_OUTPUT_PATH}/opj_decompress
+#        ${OPJ_EXECUTABLE_OUTPUT_PATH}/opj_decompress
 #        -i ${INPUT_CONF}/${filenameInput}
 #        -o ${TEMP}/c0${filenameInput}-r1.pgx
 #        -r 1
 #        )
 
 #    add_test(ETS-C0P0-${filenameInput}-r1-compare2ref
-#        ${EXECUTABLE_OUTPUT_PATH}/compare_images
+#        ${OPJ_EXECUTABLE_OUTPUT_PATH}/compare_images
 #        -b ${BASELINE_CONF}/${filenameRefSub}r1.pgx
 #        -t ${TEMP}/c0${filenameInput}-r1.pgx
 #        -n ${nbComponents}
@@ -108,7 +108,7 @@ set(COMMENTCODEVAR FALSE)
 #                         ETS-C0P0-${filenameInput}-r1-decode)
 
 #    add_test(NR-C0P0-${filenameInput}-r1-compare2base
-#        ${EXECUTABLE_OUTPUT_PATH}/compare_images
+#        ${OPJ_EXECUTABLE_OUTPUT_PATH}/compare_images
 #        -b ${BASELINE_NR}/opj_${filenameRefSub}-r1.pgx
 #        -t ${TEMP}/c0${filenameInput}-r1.pgx
 #        -n ${nbComponents}
@@ -123,14 +123,14 @@ set(COMMENTCODEVAR FALSE)
 #  else()
 
 #    add_test(ETS-C0P0-${filenameInput}-decode
-#        ${EXECUTABLE_OUTPUT_PATH}/opj_decompress
+#        ${OPJ_EXECUTABLE_OUTPUT_PATH}/opj_decompress
 #        -i ${INPUT_CONF}/${filenameInput}
 #        -o ${TEMP}/c0${filenameInput}.pgx
 #        -r ${ResFactor}
 #        )
 
 #    add_test(ETS-C0P0-${filenameInput}-compare2ref
-#        ${EXECUTABLE_OUTPUT_PATH}/compare_images
+#        ${OPJ_EXECUTABLE_OUTPUT_PATH}/compare_images
 #        -b ${BASELINE_CONF}/${filenameRef}
 #        -t ${TEMP}/c0${filenameInput}.pgx
 #        -n ${nbComponents}
@@ -144,7 +144,7 @@ set(COMMENTCODEVAR FALSE)
 #                         ETS-C0P0-${filenameInput}-decode)
 
 #    add_test(NR-C0P0-${filenameInput}-compare2base
-#        ${EXECUTABLE_OUTPUT_PATH}/compare_images
+#        ${OPJ_EXECUTABLE_OUTPUT_PATH}/compare_images
 #        -b ${BASELINE_NR}/opj_${filenameRef}
 #        -t ${TEMP}/c0${filenameInput}.pgx
 #        -n ${nbComponents}
@@ -191,14 +191,14 @@ set(COMMENTCODEVAR FALSE)
 
 #    #r = 0
 #    add_test(ETS-C0P1-${filenameInput}-r0-decode
-#        ${EXECUTABLE_OUTPUT_PATH}/opj_decompress
+#        ${OPJ_EXECUTABLE_OUTPUT_PATH}/opj_decompress
 #        -i ${INPUT_CONF}/${filenameInput}
 #        -o ${TEMP}/c0${filenameInput}-r0.pgx
 #        -r 0
 #        )
 
 #    add_test(ETS-C0P1-${filenameInput}-r0-compare2ref
-#        ${EXECUTABLE_OUTPUT_PATH}/compare_images
+#        ${OPJ_EXECUTABLE_OUTPUT_PATH}/compare_images
 #        -b ${BASELINE_CONF}/${filenameRefSub}r0.pgx
 #        -t ${TEMP}/c0${filenameInput}-r0.pgx
 #        -n ${nbComponents}
@@ -212,7 +212,7 @@ set(COMMENTCODEVAR FALSE)
 #                         ETS-C0P1-${filenameInput}-r0-decode)
 
 #    add_test(NR-C0P1-${filenameInput}-r0-compare2base
-#        ${EXECUTABLE_OUTPUT_PATH}/compare_images
+#        ${OPJ_EXECUTABLE_OUTPUT_PATH}/compare_images
 #        -b ${BASELINE_NR}/opj_${filenameRefSub}-r0.pgx
 #        -t ${TEMP}/c0${filenameInput}-r0.pgx
 #        -n ${nbComponents}
@@ -226,14 +226,14 @@ set(COMMENTCODEVAR FALSE)
 
 #    #r = 3
 #    add_test(ETS-C0P1-${filenameInput}-r3-decode
-#        ${EXECUTABLE_OUTPUT_PATH}/opj_decompress
+#        ${OPJ_EXECUTABLE_OUTPUT_PATH}/opj_decompress
 #        -i ${INPUT_CONF}/${filenameInput}
 #        -o ${TEMP}/c0${filenameInput}-r3.pgx
 #        -r 3
 #        )
 
 #    add_test(ETS-C0P1-${filenameInput}-r3-compare2ref
-#        ${EXECUTABLE_OUTPUT_PATH}/compare_images
+#        ${OPJ_EXECUTABLE_OUTPUT_PATH}/compare_images
 #        -b ${BASELINE_CONF}/${filenameRefSub}r3.pgx
 #        -t ${TEMP}/c0${filenameInput}-r3.pgx
 #        -n ${nbComponents}
@@ -247,7 +247,7 @@ set(COMMENTCODEVAR FALSE)
 #                         ETS-C0P1-${filenameInput}-r3-decode)
 
 #    add_test(NR-C0P1-${filenameInput}-r3-compare2base
-#        ${EXECUTABLE_OUTPUT_PATH}/compare_images
+#        ${OPJ_EXECUTABLE_OUTPUT_PATH}/compare_images
 #        -b ${BASELINE_NR}/opj_${filenameRefSub}-r3.pgx
 #        -t ${TEMP}/c0${filenameInput}-r3.pgx
 #        -n ${nbComponents}
@@ -262,14 +262,14 @@ set(COMMENTCODEVAR FALSE)
 #  else()
 
 #    add_test(ETS-C0P1-${filenameInput}-decode
-#        ${EXECUTABLE_OUTPUT_PATH}/opj_decompress
+#        ${OPJ_EXECUTABLE_OUTPUT_PATH}/opj_decompress
 #        -i ${INPUT_CONF}/${filenameInput}
 #        -o ${TEMP}/c0${filenameInput}.pgx
 #        -r ${ResFactor}
 #        )
 
 #    add_test(ETS-C0P1-${filenameInput}-compare2ref
-#        ${EXECUTABLE_OUTPUT_PATH}/compare_images
+#        ${OPJ_EXECUTABLE_OUTPUT_PATH}/compare_images
 #        -b ${BASELINE_CONF}/${filenameRef}
 #        -t ${TEMP}/c0${filenameInput}.pgx
 #        -n ${nbComponents}
@@ -283,7 +283,7 @@ set(COMMENTCODEVAR FALSE)
 #                         ETS-C0P1-${filenameInput}-decode)
 
 #    add_test(NR-C0P1-${filenameInput}-compare2base
-#        ${EXECUTABLE_OUTPUT_PATH}/compare_images
+#        ${OPJ_EXECUTABLE_OUTPUT_PATH}/compare_images
 #        -b ${BASELINE_NR}/opj_${filenameRef}
 #        -t ${TEMP}/c0${filenameInput}.pgx
 #        -n ${nbComponents}

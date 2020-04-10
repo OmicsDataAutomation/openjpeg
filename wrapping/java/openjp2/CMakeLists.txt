@@ -53,10 +53,12 @@ file(GLOB java_srcs "java-sources/org/openJpeg/*.java")
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/classes)
 # Build java
 add_custom_command(
-  OUTPUT ${LIBRARY_OUTPUT_PATH}/openjpeg.jar
+##CPB  OUTPUT ${LIBRARY_OUTPUT_PATH}/openjpeg.jar
+  OUTPUT ${OPJ_LIBRARY_OUTPUT_PATH}/openjpeg.jar
   COMMAND ${Java_JAVAC_EXECUTABLE} -sourcepath  "${CMAKE_CURRENT_SOURCE_DIR}/java-sources"
   ${java_srcs} -d ${CMAKE_CURRENT_BINARY_DIR}/classes
-  COMMAND ${Java_JAR_EXECUTABLE} cvf ${LIBRARY_OUTPUT_PATH}/openjpeg.jar org
+##CPB  COMMAND ${Java_JAR_EXECUTABLE} cvf ${LIBRARY_OUTPUT_PATH}/openjpeg.jar org
+  COMMAND ${Java_JAR_EXECUTABLE} cvf ${OPJ_LIBRARY_OUTPUT_PATH}/openjpeg.jar org
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/classes
   DEPENDS ${java_srcs}
   COMMENT "javac *.java; jar cvf -> openjpeg.jar"
@@ -64,10 +66,12 @@ add_custom_command(
 
 # name the target
 add_custom_target(OpenJPEGJavaJar ALL
-  DEPENDS ${LIBRARY_OUTPUT_PATH}/openjpeg.jar
+##CPB  DEPENDS ${LIBRARY_OUTPUT_PATH}/openjpeg.jar
+  DEPENDS ${OPJ_LIBRARY_OUTPUT_PATH}/openjpeg.jar
   COMMENT "building openjpeg.jar"
 )
 
-install(FILES ${LIBRARY_OUTPUT_PATH}/openjpeg.jar
+##CPBinstall(FILES ${LIBRARY_OUTPUT_PATH}/openjpeg.jar
+install(FILES ${OPJ_LIBRARY_OUTPUT_PATH}/openjpeg.jar
   DESTINATION ${OPENJPEG_INSTALL_SHARE_DIR} COMPONENT JavaModule
 )

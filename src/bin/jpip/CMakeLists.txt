@@ -103,12 +103,14 @@ if(Java_Development_FOUND AND Java_JAVAC_EXECUTABLE)
     file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/classes2)
     # Build java
     add_custom_command(
-      OUTPUT ${LIBRARY_OUTPUT_PATH}/opj_jpip_viewer.jar
+##CPB      OUTPUT ${LIBRARY_OUTPUT_PATH}/opj_jpip_viewer.jar
+      OUTPUT ${OPJ_LIBRARY_OUTPUT_PATH}/opj_jpip_viewer.jar
       COMMAND ${Java_JAVAC_EXECUTABLE} ${jflags}
       -source ${JAVA_SOURCE_VERSION} -target ${JAVA_TARGET_VERSION}
       -classpath ${APACHE_XERCES_JAR}
       ${java2_srcs} -d ${CMAKE_CURRENT_BINARY_DIR}/classes2
-      COMMAND ${Java_JAR_EXECUTABLE} cfm ${LIBRARY_OUTPUT_PATH}/opj_jpip_viewer.jar
+##CPB      COMMAND ${Java_JAR_EXECUTABLE} cfm ${LIBRARY_OUTPUT_PATH}/opj_jpip_viewer.jar
+      COMMAND ${Java_JAR_EXECUTABLE} cfm ${OPJ_LIBRARY_OUTPUT_PATH}/opj_jpip_viewer.jar
       ${CMAKE_CURRENT_BINARY_DIR}/opj_viewer_xerces/dist/manifest.txt
       -C ${CMAKE_CURRENT_BINARY_DIR}/classes2 .
       DEPENDS ${java2_srcs}
@@ -118,11 +120,13 @@ if(Java_Development_FOUND AND Java_JAVAC_EXECUTABLE)
 
     # name the target
     add_custom_target(OPJViewerXercesJar ALL
-      DEPENDS ${LIBRARY_OUTPUT_PATH}/opj_jpip_viewer.jar
+##CPB      DEPENDS ${LIBRARY_OUTPUT_PATH}/opj_jpip_viewer.jar
+      DEPENDS ${OPJ_LIBRARY_OUTPUT_PATH}/opj_jpip_viewer.jar
       COMMENT "building opj_jpip_viewer.jar (xerces)"
       )
 
-    install(FILES ${LIBRARY_OUTPUT_PATH}/opj_jpip_viewer.jar
+##CPB    install(FILES ${LIBRARY_OUTPUT_PATH}/opj_jpip_viewer.jar
+    install(FILES ${OPJ_LIBRARY_OUTPUT_PATH}/opj_jpip_viewer.jar
       DESTINATION ${OPENJPEG_INSTALL_SHARE_DIR} COMPONENT JavaModule
       )
   else()
@@ -134,11 +138,13 @@ if(Java_Development_FOUND AND Java_JAVAC_EXECUTABLE)
     file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/classes1)
     # Build java
     add_custom_command(
-      OUTPUT ${LIBRARY_OUTPUT_PATH}/opj_jpip_viewer.jar
+##CPB      OUTPUT ${LIBRARY_OUTPUT_PATH}/opj_jpip_viewer.jar
+      OUTPUT ${OPJ_LIBRARY_OUTPUT_PATH}/opj_jpip_viewer.jar
       COMMAND ${Java_JAVAC_EXECUTABLE} ${jflags}
       -source ${JAVA_SOURCE_VERSION} -target ${JAVA_TARGET_VERSION}
       ${java1_srcs} -d ${CMAKE_CURRENT_BINARY_DIR}/classes1
-      COMMAND ${Java_JAR_EXECUTABLE} cfm ${LIBRARY_OUTPUT_PATH}/opj_jpip_viewer.jar
+##CPB      COMMAND ${Java_JAR_EXECUTABLE} cfm ${LIBRARY_OUTPUT_PATH}/opj_jpip_viewer.jar
+      COMMAND ${Java_JAR_EXECUTABLE} cfm ${OPJ_LIBRARY_OUTPUT_PATH}/opj_jpip_viewer.jar
       ${CMAKE_CURRENT_SOURCE_DIR}/opj_viewer/dist/manifest.txt -C
       ${CMAKE_CURRENT_BINARY_DIR}/classes1 .
       DEPENDS ${java1_srcs}
@@ -148,11 +154,13 @@ if(Java_Development_FOUND AND Java_JAVAC_EXECUTABLE)
 
     # name the target
     add_custom_target(OPJViewerJar ALL
-      DEPENDS ${LIBRARY_OUTPUT_PATH}/opj_jpip_viewer.jar
+##CPB      DEPENDS ${LIBRARY_OUTPUT_PATH}/opj_jpip_viewer.jar
+      DEPENDS ${OPJ_LIBRARY_OUTPUT_PATH}/opj_jpip_viewer.jar
       COMMENT "building opj_jpip_viewer.jar (no xerces found)"
       )
 
-    install(FILES ${LIBRARY_OUTPUT_PATH}/opj_jpip_viewer.jar
+##CPB    install(FILES ${LIBRARY_OUTPUT_PATH}/opj_jpip_viewer.jar
+    install(FILES ${OPJ_LIBRARY_OUTPUT_PATH}/opj_jpip_viewer.jar
       DESTINATION ${OPENJPEG_INSTALL_SHARE_DIR} COMPONENT JavaModule
       )
   endif()

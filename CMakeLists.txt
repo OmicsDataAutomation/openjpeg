@@ -125,7 +125,8 @@ if(NOT OPENJPEG_INSTALL_DATA_DIR)
 endif()
 
 if(NOT OPENJPEG_INSTALL_INCLUDE_DIR)
-  set(OPENJPEG_INSTALL_INCLUDE_DIR "include/${OPENJPEG_INSTALL_SUBDIR}")
+##CPB  set(OPENJPEG_INSTALL_INCLUDE_DIR "include/${OPENJPEG_INSTALL_SUBDIR}")
+  set(OPENJPEG_INSTALL_INCLUDE_DIR "include")
 endif()
 
 if(BUILD_DOC)
@@ -175,9 +176,12 @@ configure_file(
 # OpenJPEG build configuration options.
 option(BUILD_SHARED_LIBS "Build OpenJPEG shared library and link executables against it." ON)
 option(BUILD_STATIC_LIBS "Build OpenJPEG static library." ON)
-set (EXECUTABLE_OUTPUT_PATH ${OPENJPEG_BINARY_DIR}/bin CACHE PATH "Single output directory for building all executables.")
-set (LIBRARY_OUTPUT_PATH ${OPENJPEG_BINARY_DIR}/bin CACHE PATH "Single output directory for building all libraries.")
-mark_as_advanced(LIBRARY_OUTPUT_PATH EXECUTABLE_OUTPUT_PATH)
+##CPBset (EXECUTABLE_OUTPUT_PATH ${OPENJPEG_BINARY_DIR}/bin CACHE PATH "Single output directory for building all executables.")
+##CPBset (LIBRARY_OUTPUT_PATH ${OPENJPEG_BINARY_DIR}/bin CACHE PATH "Single output directory for building all libraries.")
+##CPBmark_as_advanced(LIBRARY_OUTPUT_PATH EXECUTABLE_OUTPUT_PATH)
+set (OPJ_EXECUTABLE_OUTPUT_PATH ${OPENJPEG_BINARY_DIR}/bin CACHE PATH "Single output directory for building all executables.")
+set (OPJ_LIBRARY_OUTPUT_PATH ${OPENJPEG_BINARY_DIR}/bin CACHE PATH "Single output directory for building all libraries.")
+mark_as_advanced(OPJ_LIBRARY_OUTPUT_PATH OPJ_EXECUTABLE_OUTPUT_PATH)
 
 #-----------------------------------------------------------------------------
 # configure name mangling to allow multiple libraries to coexist
