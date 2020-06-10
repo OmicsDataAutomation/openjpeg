@@ -86,3 +86,5 @@ install(
   DESTINATION ${OPENJPEG_INSTALL_MAN_DIR}/man1)
 #
 endif()
+
+add_subdirectory(examples)
