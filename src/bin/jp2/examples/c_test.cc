@@ -1,3 +1,35 @@
+/**
+ * @file c_test.cc
+ *
+ * @section LICENSE
+ *
+ * The MIT License
+ *
+ * @copyright Copyright (c) 2019-2020 Omics Data Automation, Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * @section DESCRIPTION  Calls to OpenJPEG library functions to compress
+ *    image residing in memory. Debugging and tracing function have been
+ *    included to allow for checking of correct parameter values.
+ */
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -8,7 +40,6 @@
 
 #include "stdlib.h"
 
-static int tile_num = 0;
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -230,9 +261,11 @@ void print_image_stuff(opj_image_t *i, opj_cparameters_t p)
    printf("numcomps: %d\nprof_len: %d\n",i->numcomps, i->icc_profile_len);
 }
 
-void get_header_values(char *tile_in,
+extern void cleanup(void *, opj_stream_t *, opj_codec_t *, opj_image_t *);
+
+void get_header_values(OPJ_BYTE *tile_in,
                        OPJ_UINT32 *nc,
-                       int *ih, int *iw)
+                       int *iw, int *ih)
 {
    int *buffer = (int *) tile_in;
 
@@ -240,17 +273,12 @@ void get_header_values(char *tile_in,
    *iw = buffer[1];       // image width
    *ih = buffer[2];       // image height
 
-/** Do we need these? **
-   *c_space = buffer[5];  // color space ASSUME set from num_comps
-   *t_num = buffer[6];    // tile number ASSUME the number makes no difference
-**/
-
    return;
 }
 
 #define NUM_COMPS_MAX 4
 
-int Compress(char *tile_in, size_t tile_size_in, char** buff_out, size_t* size_out )
+int Compress(OPJ_BYTE *tile_in, size_t tile_size_in, OPJ_BYTE** buff_out, size_t* size_out )
 {
     opj_cparameters_t l_param;
     opj_codec_t * l_codec;
@@ -283,7 +311,7 @@ int Compress(char *tile_in, size_t tile_size_in, char** buff_out, size_t* size_o
     
     int dim_max, tile_factor;
 
-    get_header_values(tile_in, &num_comps, &image_height, &image_width);
+    get_header_values(tile_in, &num_comps, &image_width, &image_height);
 
 // Use whole "image" as single tile; tiling set in TileDB level
      tile_factor = 1;
@@ -311,10 +339,6 @@ int Compress(char *tile_in, size_t tile_size_in, char** buff_out, size_t* size_o
     /* position of the tile grid aligned with the image */
     l_param.cp_tx0 = 0;
     l_param.cp_ty0 = 0;
-    /* tile size, we are using tile based encoding */
-//  l_param.tile_size_on = OPJ_TRUE;
-//  l_param.cp_tdx = tile_width;
-//  l_param.cp_tdy = tile_height;
 
     /* Setting up for lossless **/
     l_param.cp_disto_alloc = 1;
@@ -385,12 +409,10 @@ int Compress(char *tile_in, size_t tile_size_in, char** buff_out, size_t* size_o
     else 
        l_image = opj_image_create(num_comps, l_image_params, OPJ_CLRSPC_UNKNOWN);
     if (! l_image) {
-        //free(l_data);
-        opj_destroy_codec(l_codec);
+        cleanup(NULL, NULL, l_codec, NULL);
         return 1;
     }
 
-// CPB: Are these needed?
     l_image->x0 = offsetx;
     l_image->y0 = offsety;
     l_image->x1 = offsetx + (OPJ_UINT32)image_width;
@@ -410,16 +432,12 @@ int Compress(char *tile_in, size_t tile_size_in, char** buff_out, size_t* size_o
       l_data += num_bytes;
    }
 
-// CPB
 //print_image_info(l_image);
 //print_parameters(l_param);
-// CPB end
 
     if (! opj_setup_encoder(l_codec, &l_param, l_image)) {
         fprintf(stderr, "ERROR -> c_test: failed to setup the codec!\n");
-        opj_destroy_codec(l_codec);
-        opj_image_destroy(l_image);
-        //free(l_data);
+        cleanup(NULL, NULL, l_codec, l_image);
         return 1;
     }
 
@@ -427,6 +445,7 @@ int Compress(char *tile_in, size_t tile_size_in, char** buff_out, size_t* size_o
     if (! l_stream) {
         fprintf(stderr,
                 "ERROR -> c_test: failed to create the memory stream!\n");
+        cleanup(NULL, NULL, l_codec, l_image);
         opj_destroy_codec(l_codec);
         opj_image_destroy(l_image);
         //free(l_data);
@@ -435,14 +454,11 @@ int Compress(char *tile_in, size_t tile_size_in, char** buff_out, size_t* size_o
 
     if (! opj_start_compress(l_codec, l_image, l_stream)) {
         fprintf(stderr, "ERROR -> c_test: failed to start compress!\n");
-        opj_stream_destroy(l_stream);
-        opj_destroy_codec(l_codec);
-        opj_image_destroy(l_image);
-        //free(l_data);
+        cleanup(NULL, l_stream, l_codec, l_image);
         return 1;
     }
 
-/*
+/*  DEBUG prints
     printf("$$$ After start_compress\n");
     opj_stream_private_t * p_stream;
     mem_stream_t * my_data;
@@ -462,15 +478,11 @@ int Compress(char *tile_in, size_t tile_size_in, char** buff_out, size_t* size_o
 
     if (! opj_encode(l_codec, l_stream)) {
        fprintf(stderr, "ERROR -> opj_encode: failed to encode image\n");
-       opj_stream_destroy(l_stream);
-       opj_destroy_codec(l_codec);
-       opj_image_destroy(l_image);
-       //free(l_data);
+       cleanup(NULL, l_stream, l_codec, l_image);
        return 1;
     }
 
-/*
-    ++tile_num;
+/*  DEBUG prints
     p_stream = (opj_stream_private_t *) l_stream;
     my_data = (mem_stream_t*) p_stream->m_user_data;
    printf ("\nBEFORE opj_end_compress\nPrint first %d bytes in compressed buffer:\n", p_stream->m_bytes_in_buffer);
@@ -485,18 +497,13 @@ int Compress(char *tile_in, size_t tile_size_in, char** buff_out, size_t* size_o
 
     if (! opj_end_compress(l_codec, l_stream)) {
         fprintf(stderr, "ERROR -> test_tile_encoder: failed to end compress!\n");
-        opj_stream_destroy(l_stream);
-        opj_destroy_codec(l_codec);
-        opj_image_destroy(l_image);
-        //free(l_data);
+        cleanup(NULL, l_stream, l_codec, l_image);
         return 1;
     }
 
     *buff_out = opj_mem_stream_copy(l_stream, size_out);
 
-    opj_stream_destroy(l_stream);
-    opj_destroy_codec(l_codec);
-    opj_image_destroy(l_image);
+    cleanup(NULL, l_stream, l_codec, l_image);
 
     return 0;
 }

@@ -1,3 +1,36 @@
+/**
+ * @file d_test.cc
+ *
+ * @section LICENSE
+ *
+ * The MIT License
+ *
+ * @copyright Copyright (c) 2019-2020 Omics Data Automation, Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * @section DESCRIPTION Calls to OpenJPEG library functions to decompress
+ *   image residing in memory. Before returning the decompressed image, the
+ *   pixels are converted from OPJ_BYTE to OPJ_UINT32 format
+ *   (in copy_pixels_out).
+ */
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -17,7 +50,7 @@
 
 /**
  * sample error callback expecting a FILE* client object
- * */
+ **/
 static void error_callback(const char *msg, void *client_data)
 {
     (void)client_data;
@@ -25,7 +58,7 @@ static void error_callback(const char *msg, void *client_data)
 }
 /**
  * sample warning callback expecting a FILE* client object
- * */
+ **/
 static void warning_callback(const char *msg, void *client_data)
 {
     (void)client_data;
@@ -33,20 +66,21 @@ static void warning_callback(const char *msg, void *client_data)
 }
 /**
  * sample debug callback expecting no client object
- * */
+ **/
 static void info_callback(const char *msg, void *client_data)
 {
     (void)client_data;
     fprintf(stdout, "[INFO] %s", msg);
 }
 
+extern void cleanup(void *, opj_stream_t *, opj_codec_t *, opj_image_t *);
 
-void copy_pixels_out(OPJ_UINT32 numcomps, OPJ_UINT32 image_height, OPJ_UINT32 image_width, OPJ_BYTE * l_data, OPJ_UINT32 l_data_size, char** return_buff, size_t *size_out)
+void copy_pixels_out(OPJ_UINT32 numcomps, OPJ_UINT32 image_height, OPJ_UINT32 image_width, OPJ_BYTE * l_data, OPJ_UINT32 l_data_size, OPJ_BYTE** return_buff, size_t *size_out)
 {
-   size_t image_bytes = 3*sizeof(OPJ_UINT32) + l_data_size;
+   size_t i, image_bytes = (3 + l_data_size) *sizeof(OPJ_UINT32); 
 //printf("  copy_pixels_out: image_bytes == %d\n", image_bytes);
 
-   char *out_buff = (char *) malloc(image_bytes * sizeof(char));
+   OPJ_UINT32 *out_buff = (OPJ_UINT32 *) malloc(image_bytes);
    if (!(out_buff)) {
      fprintf(stderr, "Fail to allocate %d bytes: copy_pixels_out\n", image_bytes);
      return;
@@ -54,27 +88,22 @@ void copy_pixels_out(OPJ_UINT32 numcomps, OPJ_UINT32 image_height, OPJ_UINT32 im
    OPJ_UINT32 *buffer = (OPJ_UINT32 *) out_buff;
 
    buffer[0] = numcomps;      // number of color components
-   buffer[1] = image_height;  // image height
-   buffer[2] = image_width;   // image width
+   buffer[1] = image_width;   // image width
+   buffer[2] = image_height;  // image height
+   buffer += 3;
 
-   char *ob = out_buff;
-   ob += 3*sizeof(OPJ_UINT32);
+// Convert OPJ_BYTE pixel values to OPJ_UINT32 values
+   OPJ_BYTE *ob = l_data;
+   for (i = 0; i < l_data_size; ++i) {
+      buffer[i] = (OPJ_UINT32) (0x000000FF & (*ob));
+      ++ob;
+   } 
 
-   memcpy(ob, l_data, l_data_size);
-   
-   *return_buff = out_buff;
+   *return_buff = (OPJ_BYTE *)out_buff;
    *size_out = image_bytes;
 }
 
-void cleanup(void *l_data, opj_stream_t *l_stream, opj_codec_t *l_codec, opj_image_t *l_image)
-{
-   if (l_data)   free(l_data);
-   if (l_stream) opj_stream_destroy(l_stream);
-   if (l_codec)  opj_destroy_codec(l_codec);
-   if (l_image)  opj_image_destroy(l_image);
-}
-
-int Decompress(char* buf_in, size_t size_in, char **tile_out, size_t *size_out) 
+int Decompress(OPJ_BYTE* buf_in, size_t size_in, OPJ_BYTE **tile_out, size_t *size_out) 
 {
    opj_dparameters_t l_param;
    opj_codec_t * l_codec;
@@ -197,7 +226,8 @@ int Decompress(char* buf_in, size_t size_in, char **tile_out, size_t *size_out)
       return EXIT_FAILURE;
    }
 
-   copy_pixels_out(numcomps, image_height, image_width, l_data, l_data_size, tile_out, size_out);
+   copy_pixels_out(numcomps, image_height, image_width, 
+                   l_data, l_data_size, tile_out, size_out);
 
    /* Free memory */
    cleanup(l_data, l_stream, l_codec, l_image);

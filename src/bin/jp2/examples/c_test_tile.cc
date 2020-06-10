@@ -1,3 +1,34 @@
+/**
+ * @file c_test_tile.cc
+ *
+ * @section LICENSE
+ *
+ * The MIT License
+ *
+ * @copyright Copyright (c) 2019-2020 Omics Data Automation, Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * @section DESCRIPTION  Calls to OpenJPEG library functions to compress
+ *     image residing in memory.
+ */
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -48,22 +79,24 @@ static INLINE OPJ_UINT32 opj_uint_min(OPJ_UINT32  a, OPJ_UINT32  b)
 
 /* -------------------------------------------------------------------------- */
 
-void get_header_values(char *tile_in,
+extern void cleanup(void *, opj_stream_t *, opj_codec_t *, opj_image_t *);
+
+void get_header_values(OPJ_BYTE *tile_in,
                        OPJ_UINT32 *nc,
-                       int *ih, int *iw)
+                       int *iw, int *ih)
 {
    int *buffer = (int *) tile_in;
 
    *nc = buffer[0];       // number of color components
-   *ih = buffer[1];       // image height
-   *iw = buffer[2];       // image width
+   *iw = buffer[1];       // image width
+   *ih = buffer[2];       // image height
 
    return;
 }
 
 #define NUM_COMPS_MAX 4
 
-int Compress(char *tile_in, size_t tile_size_in, char** buff_out, size_t* size_out )
+int Compress(OPJ_BYTE *tile_in, size_t tile_size_in, OPJ_BYTE** buff_out, size_t* size_out )
 {
     opj_cparameters_t l_param;
     opj_codec_t * l_codec;
@@ -94,7 +127,7 @@ int Compress(char *tile_in, size_t tile_size_in, char** buff_out, size_t* size_o
     OPJ_UINT32 offsety = 0;
     int quality_loss = 0; // lossless
 
-    get_header_values(tile_in, &num_comps, &image_height, &image_width);
+    get_header_values(tile_in, &num_comps, &image_width, &image_height);
 
 // Use whole "image" as single tile; tiling set in TileDB level
     tile_height = image_height;
@@ -173,8 +206,7 @@ int Compress(char *tile_in, size_t tile_size_in, char** buff_out, size_t* size_o
     else 
        l_image = opj_image_tile_create(num_comps, l_image_params, OPJ_CLRSPC_UNKNOWN);
     if (! l_image) {
-        //free(l_data);
-        opj_destroy_codec(l_codec);
+        cleanup(NULL, NULL, l_codec, NULL);
         return 1;
     }
 
@@ -191,9 +223,7 @@ int Compress(char *tile_in, size_t tile_size_in, char** buff_out, size_t* size_o
 
     if (! opj_setup_encoder(l_codec, &l_param, l_image)) {
         fprintf(stderr, "ERROR -> c_test: failed to setup the codec!\n");
-        opj_destroy_codec(l_codec);
-        opj_image_destroy(l_image);
-        //free(l_data);
+        cleanup(NULL, NULL, l_codec, l_image);
         return 1;
     }
 
@@ -201,18 +231,13 @@ int Compress(char *tile_in, size_t tile_size_in, char** buff_out, size_t* size_o
     if (! l_stream) {
         fprintf(stderr,
                 "ERROR -> c_test: failed to create the memory stream!\n");
-        opj_destroy_codec(l_codec);
-        opj_image_destroy(l_image);
-        //free(l_data);
+        cleanup(NULL, NULL, l_codec, l_image);
         return 1;
     }
 
     if (! opj_start_compress(l_codec, l_image, l_stream)) {
         fprintf(stderr, "ERROR -> c_test: failed to start compress!\n");
-        opj_stream_destroy(l_stream);
-        opj_destroy_codec(l_codec);
-        opj_image_destroy(l_image);
-        //free(l_data);
+        cleanup(NULL, l_stream, l_codec, l_image);
         return 1;
     }
 
@@ -237,10 +262,7 @@ int Compress(char *tile_in, size_t tile_size_in, char** buff_out, size_t* size_o
    /** Always write tile 0 **/
     if (! opj_write_tile(l_codec, 0, l_data, tilesize, l_stream)) {
        fprintf(stderr, "ERROR -> test_tile_encoder: failed to write the tile %d!\n", i);
-       opj_stream_destroy(l_stream);
-       opj_destroy_codec(l_codec);
-       opj_image_destroy(l_image);
-       //free(l_data);
+       cleanup(NULL, l_stream, l_codec, l_image);
        return 1;
     }
 
@@ -260,18 +282,13 @@ int Compress(char *tile_in, size_t tile_size_in, char** buff_out, size_t* size_o
 
     if (! opj_end_compress(l_codec, l_stream)) {
         fprintf(stderr, "ERROR -> test_tile_encoder: failed to end compress!\n");
-        opj_stream_destroy(l_stream);
-        opj_destroy_codec(l_codec);
-        opj_image_destroy(l_image);
-        //free(l_data);
+        cleanup(NULL, l_stream, l_codec, l_image);
         return 1;
     }
 
     *buff_out = opj_mem_stream_copy(l_stream, size_out);
 
-    opj_stream_destroy(l_stream);
-    opj_destroy_codec(l_codec);
-    opj_image_destroy(l_image);
+    cleanup(NULL, l_stream, l_codec, l_image);
 
     return 0;
 }

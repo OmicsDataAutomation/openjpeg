@@ -1,10 +1,10 @@
 
 set(example_SRCS
-  c_test.c
-  d_test.c
+  c_test.cc
+  d_test.cc
   )
 
-add_executable(cd_main cd_main.c ${example_SRCS})
+add_executable(cd_main cd_main.cc ${example_SRCS})
 target_link_libraries(cd_main ${OPENJPEG_LIBRARY_NAME}
   ${PNG_LIBNAME} ${TIFF_LIBNAME} ${LCMS_LIBNAME}
   )
@@ -25,11 +25,11 @@ endif()
 
 
 set(example_SRCS_tile
-  c_test_tile.c
-  d_test_tile.c
+  c_test_tile.cc
+  d_test_tile.cc
   )
 
-add_executable(cd_main_tile cd_main_tile.c ${example_SRCS_tile})
+add_executable(cd_main_tile cd_main_tile.cc ${example_SRCS_tile})
 target_link_libraries(cd_main_tile ${OPENJPEG_LIBRARY_NAME}
   ${PNG_LIBNAME} ${TIFF_LIBNAME} ${LCMS_LIBNAME}
   )
