@@ -1,0 +1,24 @@
+Two executables are created with the building of the (ODA branch) OpenJPEG library and binary files.
+
+cd_test - Compression and decompression codes that were used to build the compress_tile() and decompress_tile() functions 
+within the TileDB JPEG2K codecs. The application will create int32 palette image in memory, compress the image to memory, 
+write the compressed image to a file (for manual verification), decompress the image from memory, and write the
+decompressed pixel values to a file (for verification).
+
+While not part of the image, 3 integer "header" values are added as a prefix to the pixel data before sending the image to Compress. 
+These bytes are read in compress to set parameter values of the number of components in the image, and the width and height of the 
+image. These header bytes are stripped off the image before compression.
+
+Before return from Decompress, the header bytes are restored as a preface to the returned pixel values.
+
+
+cd_test_tile - Compression and decompression codes that were used to build the compress_tile() and decompress_tile() functions 
+within the TileDB JPEG2K codecs. The application will create uint8_t palette image in memory, compress the image to memory, 
+write the compressed image to a file (for manual verification), decompress the image from memory, and write the
+decompressed pixel values to a file (for verification).
+
+While not part of the image, 3 integer "header" values are added as a prefix to the pixel data before sending the image to Compress. 
+These bytes are read in compress to set parameter values of the number of components in the image, and the width and height of the 
+image. These header bytes are stripped off the image before compression.
+
+Before return from Decompress, the header bytes are restored as a preface to the returned pixel values.
