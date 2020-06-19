@@ -215,7 +215,7 @@ export OPJ_BUILD_CONFIGURATION=${OPJ_CI_BUILD_CONFIGURATION}
 export OPJ_DO_SUBMIT=${OPJ_DO_SUBMIT}
 
 if [ "${OPJ_SKIP_REBUILD:-}" != "1" ]; then
-    ctest -S ${OPJ_SOURCE_DIR}/tools/ctest_scripts/travis-ci.cmake -V || true
+    ctest -S ${OPJ_SOURCE_DIR}/tools/ctest_scripts/travis-ci.cmake -V -W,--extra-verbose || true
 fi
 # ctest will exit with various error codes depending on version.
 # ignore ctest exit code & parse this ourselves
